@@ -1,0 +1,15 @@
+/build/
+/build/**
+/bin/
+/bin/**
+.classpath
+.project
+.settings
+.gradle
+.lock
+data/
+.gradle
+gradle
+gradle/**
+.DS_Store
+/**/.DS_Store

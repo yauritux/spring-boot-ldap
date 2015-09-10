@@ -1,0 +1,49 @@
+buildscript {
+  repositories {
+    maven { url "https://repo.spring.io/libs-milestone" }
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/libs-release" }
+    mavenCentral()  
+    jcenter()
+    maven { url "http://oss.jfrog.org/artifactory/oss-release-local" }    
+  }  
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.5.RELEASE")
+  }
+}
+
+apply plugin: 'spring-boot'
+
+compileJava.options.encoding = 'UTF-8'
+
+group = 'com.danamon.ldap'
+version = '1.0.0'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+  maven { url "https://repo.spring.io/libs-milestone" }
+  maven { url "http://repo.spring.io/libs-snapshot" }
+  mavenCentral()
+  jcenter()
+}
+
+dependencies {
+  compile("org.apache.directory.api:api-all:1.0.0-M31")
+  //compile("org.apache.httpcomponents:httpclient:4.5")
+  //compile("org.json:json:20141113")
+  compile("org.springframework.boot:spring-boot-starter-web")
+  compile("org.springframework.boot:spring-boot-starter-hateoas")
+  //compile("org.springframework.boot:spring-boot-starter-logging")
+  //compile("org.springframework:spring-context-support")
+  testCompile("org.springframework.boot:spring-boot-starter-test")
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.3'
+}
+
+springBoot {
+  mainClass = 'com.danamon.ldap.Application'
+}
