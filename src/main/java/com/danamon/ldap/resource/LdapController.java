@@ -30,12 +30,6 @@ public class LdapController {
 
 	private LdapService ldapService;
 	
-	@Value("${host}")
-	private String host;
-	
-	@Value("${port}")
-	private int port;
-	
 	@Value("${dn}")
 	private String dn;
 	
@@ -47,15 +41,12 @@ public class LdapController {
 		this.ldapService = ldapService;
 	}
 	
-	@RequestMapping(value = "/connect", produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/open_connection", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponseWrapper<Map<String, String>> connect() throws Exception {
 		ApiResponseWrapper<Map<String, String>> response = new ApiResponseWrapper<>();;
 		
 		try {
-			ldapService.connect(host, port);
 			if (dn != null && !dn.isEmpty() && credentials != null && !credentials.isEmpty()) {
-				System.out.println("user=" + dn);
-				System.out.println("credentials=" + credentials);
 				ldapService.bind(dn, credentials);
 			} else {
 				ldapService.bind();
@@ -66,21 +57,37 @@ public class LdapController {
 			response.setData(data);
 			response.setMessage("Successfully connected to LDAP Server");
 		} catch (Exception e) {
+			ldapService.unbind();			
 			throw e;
-		} finally {
-			ldapService.unbind();
 		}
 		
 		return response;
 	}
 	
-	@RequestMapping(value = "/fetch", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = "/release_connection", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ApiResponseWrapper<Map<String, String>> shutdown() throws Exception {
+		ApiResponseWrapper<Map<String, String>> response = new ApiResponseWrapper<>();
+		
+		try {
+			ldapService.unbind();
+			Map<String, String> data = new HashMap<>();
+			data.put("operation", "Release LDAP Connection");
+			data.put("response", "OK");
+			response.setData(data);
+			response.setMessage("LDAP Connection has been released.");
+		} catch (Exception e) {
+			throw e;
+		}
+		
+		return response;
+	}
+	
+	@RequestMapping(value = "/fetch", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ApiResponseWrapper<Map<String, String>> fetch(@RequestBody LdapRequestModel request) throws Exception {
 		ApiResponseWrapper<Map<String, String>> response = new ApiResponseWrapper<>();
 		
 		StringBuilder strBuilder = new StringBuilder();
 		try {
-			ldapService.connect(host, port);
 			if (dn != null && !dn.isEmpty() && credentials != null && !credentials.isEmpty()) {
 				ldapService.bind(dn, credentials);
 			} else {
@@ -98,9 +105,8 @@ public class LdapController {
 			response.setData(data);
 			response.setMessage("success");
 		} catch (Exception e) {
-			throw e;
-		} finally {
 			ldapService.unbind();
+			throw e;
 		}
 		
 		return response;

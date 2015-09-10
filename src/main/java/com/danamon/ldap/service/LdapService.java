@@ -13,7 +13,6 @@ import org.apache.directory.api.ldap.model.message.SearchScope;
  */
 public interface LdapService {
 	
-	public void connect(String server, int port) throws Exception;
 	public void bind() throws LdapException, IOException;
 	public void bind(String user, String password) throws LdapException, IOException;
 	public void unbind() throws LdapException;
